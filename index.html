@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบสรุปและเปรียบเทียบเกณฑ์การเบิกจ่าย Sleep Test และ CPAP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Sarabun', 'sans-serif'],
+                    },
+                    colors: {
+                        sss: { light: '#fef3c7', DEFAULT: '#d97706', dark: '#92400e' },
+                        nhso: { light: '#d1fae5', DEFAULT: '#059669', dark: '#065f46' },
+                        cscd: { light: '#e0e7ff', DEFAULT: '#4f46e5', dark: '#3730a3' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Sarabun', sans-serif; background-color: #f8fafc; color: #1e293b; }
+        .tab-btn.active { border-bottom-width: 3px; font-weight: 700; }
+        .badge { display: inline-flex; align-items: center; padding: 0.25rem 0.625rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            body { background: white; color: black; }
+            .card-shadow { box-shadow: none !important; border: 1px solid #cbd5e1 !important; }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <header class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white shadow-lg sticky top-0 z-40 no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div class="flex items-center space-x-3">
+                    <div class="p-2.5 bg-indigo-600/30 rounded-xl border border-indigo-400/30 text-indigo-300">
+                        <i class="fa-solid font-bold fa-bed-pulse text-2xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+                            ระบบสรุปและเปรียบเทียบเกณฑ์การเบิกจ่าย
+                        </h1>
+                        <p class="text-xs sm:text-sm text-slate-300 flex items-center gap-2">
+                            <span>การตรวจการนอนหลับ (PSG) และเครื่องอัดอากาศแรงดันบวก (CPAP)</span>
+                            <span class="bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded text-[10px] font-semibold">อัปเดต 30 ก.ค. 2569</span>
+                        </p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="window.print()" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-sm font-medium transition flex items-center gap-2">
+                        <i class="fa-solid fa-print"></i> พิมพ์ / PDF
+                    </button>
+                    <button onclick="openCheckerModal()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-semibold shadow-md transition flex items-center gap-2">
+                        <i class="fa-solid fa-calculator"></i> เช็คสิทธิเบื้องต้น
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-4 no-print">
+            <!-- ประกันสังคม Card Summary -->
+            <div class="bg-white p-4 rounded-xl border border-amber-200 shadow-sm hover:shadow-md transition relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-2 h-full bg-amber-500"></div>
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold uppercase tracking-wider text-amber-700 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200">
+                        <i class="fa-solid fa-shield-halved mr-1"></i> ประกันสังคม (SSS)
+                    </span>
+                    <span class="text-xs font-semibold text-slate-500">จำกัด 1 ครั้ง/3 ปี</span>
+                </div>
+                <div class="mt-2 space-y-1">
+                    <div class="text-sm font-medium text-slate-700">ค่าตรวจ Sleep Test: <span class="font-bold text-slate-900">สูงสุด 7,000 บาท</span></div>
+                    <div class="text-sm font-medium text-slate-700">วงเงิน CPAP เครื่องแรก: <span class="font-bold text-amber-600">20,000 บาท</span></div>
+                    <div class="text-xs text-slate-500 mt-1">ต้องผ่านการทดลองใช้ CPAP เฉลี่ย ≥ 4 ชม./คืน (1-2 สัปดาห์)</div>
+                </div>
+            </div>
+
+            <!-- สปสช Card Summary -->
+            <div class="bg-white p-4 rounded-xl border border-emerald-200 shadow-sm hover:shadow-md transition relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-2 h-full bg-emerald-500"></div>
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+                        <i class="fa-solid fa-house-medical mr-1"></i> บัตรทอง / สปสช. (NHSO)
+                    </span>
+                    <span class="text-xs font-semibold text-slate-500">เน้นอายุ ≥ 50 ปี</span>
+                </div>
+                <div class="mt-2 space-y-1">
+                    <div class="text-sm font-medium text-slate-700">ค่าตรวจ Sleep Test: <span class="font-bold text-slate-900">6,000 - 7,000 บาท</span></div>
+                    <div class="text-sm font-medium text-slate-700">วงเงิน CPAP เครื่องแรก: <span class="font-bold text-emerald-600">20,000 บาท</span></div>
+                    <div class="text-xs text-slate-500 mt-1">อายุน้อยกว่า 50 ปี เบิกตาม Free Schedule (ไม่จำกัดจำนวน)</div>
+                </div>
+            </div>
+
+            <!-- กรมบัญชีกลาง Card Summary -->
+            <div class="bg-white p-4 rounded-xl border border-indigo-200 shadow-sm hover:shadow-md transition relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-2 h-full bg-indigo-500"></div>
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold uppercase tracking-wider text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-full border border-indigo-200">
+                        <i class="fa-solid fa-building-columns mr-1"></i> กรมบัญชีกลาง (CSCD)
+                    </span>
+                    <span class="text-xs font-semibold text-indigo-600">ไม่จำกัดจำนวนครั้งตรวจ</span>
+                </div>
+                <div class="mt-2 space-y-1">
+                    <div class="text-sm font-medium text-slate-700">ค่าตรวจ Sleep Test: <span class="font-bold text-slate-900">7,000 บาท/ครั้ง</span></div>
+                    <div class="text-sm font-medium text-slate-700">วงเงิน CPAP เครื่องแรก: <span class="font-bold text-indigo-600">20,000 บาท</span></div>
+                    <div class="text-xs text-slate-500 mt-1"><span class="font-bold text-indigo-700">ไม่ต้องผ่าน</span> การทดลองใช้เครื่องในการประเมินสิทธิเบิกจ่าย</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 no-print space-y-4">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                
+                <!-- Tab Buttons -->
+                <div class="flex flex-wrap gap-1 border-b border-slate-200 lg:border-none pb-2 lg:pb-0">
+                    <button onclick="switchTab('all')" id="tab-all" class="tab-btn px-4 py-2 text-sm font-medium rounded-t-lg lg:rounded-lg text-slate-600 hover:text-indigo-600 hover:bg-slate-50 transition active">
+                        <i class="fa-solid fa-table-columns mr-1.5"></i> ดูเปรียบเทียบทั้งหมด
+                    </button>
+                    <button onclick="switchTab('sss')" id="tab-sss" class="tab-btn px-4 py-2 text-sm font-medium rounded-t-lg lg:rounded-lg text-amber-700 hover:bg-amber-50 transition">
+                        <i class="fa-solid fa-shield-halved mr-1.5"></i> ประกันสังคม
+                    </button>
+                    <button onclick="switchTab('nhso')" id="tab-nhso" class="tab-btn px-4 py-2 text-sm font-medium rounded-t-lg lg:rounded-lg text-emerald-700 hover:bg-emerald-50 transition">
+                        <i class="fa-solid fa-house-medical mr-1.5"></i> สปสช. (บัตรทอง)
+                    </button>
+                    <button onclick="switchTab('cscd')" id="tab-cscd" class="tab-btn px-4 py-2 text-sm font-medium rounded-t-lg lg:rounded-lg text-indigo-700 hover:bg-indigo-50 transition">
+                        <i class="fa-solid fa-building-columns mr-1.5"></i> กรมบัญชีกลาง
+                    </button>
+                </div>
+
+                <!-- Category & Search Bar -->
+                <div class="flex flex-col sm:flex-row items-center gap-2">
+                    <div class="relative w-full sm:w-auto">
+                        <select id="categoryFilter" onchange="applyFilters()" class="w-full sm:w-auto text-sm border border-slate-300 rounded-lg px-3 py-2 bg-slate-50 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                            <option value="all">ทุกหัวข้อการเบิกจ่าย (1-10)</option>
+                            <option value="psg">เฉพาะเกี่ยวกับ Sleep Test (ข้อ 1-5)</option>
+                            <option value="cpap">เฉพาะเกี่ยวกับ เครื่อง CPAP/หน้ากาก (ข้อ 6-10)</option>
+                        </select>
+                    </div>
+                    <div class="relative w-full sm:w-64">
+                        <input type="text" id="searchInput" onkeyup="applyFilters()" placeholder="ค้นหาคำ เช่น AHI, 50 ปี, หน้ากาก..." class="w-full text-sm border border-slate-300 rounded-lg pl-9 pr-3 py-2 bg-slate-50 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-sm"></i>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section id="contentContainer" class="space-y-6">
+            <!-- Dynamic Content generated by JavaScript -->
+        </section>
+
+        <section class="bg-slate-100 rounded-xl p-5 border border-slate-200 text-xs text-slate-600 space-y-2">
+            <h4 class="font-bold text-slate-800 text-sm flex items-center gap-1.5">
+                <i class="fa-solid fa-circle-info text-indigo-600"></i> หมายเหตุและข้อกำหนดเพิ่มเติมจากเอกสารอ้างอิง:
+            </h4>
+            <ul class="list-disc list-inside space-y-1 pl-1">
+                <li><span class="font-semibold text-slate-700"># การตรวจประกอบการเบิก CPAP:</span> สามารถใช้ผลการตรวจได้จาก Full-night Polysomnography (Type I หรือ II) หรือ Split-night Polysomnography</li>
+                <li><span class="font-semibold text-slate-700">## กรณีผลตรวจเกิน 3 ปี:</span> หากผลตรวจการนอนหลับที่ใช้อ้างอิงเบิก CPAP ตรวจมาเกิน 3 ปีแล้ว ให้แพทย์ระบุในใบรับรองแพทย์ว่า <em class="bg-amber-100 text-amber-900 px-1 rounded">"ประเมินแล้วว่าผู้ป่วยไม่มีความจำเป็นต้องทำ sleep test ซ้ำ"</em> (อ้างอิงเอกสารประกอบการเบิก สกส.)</li>
+                <li><span class="font-semibold text-slate-700">¶ สปสช. กรณีอายุน้อยกว่า 50 ปี:</span> จ่ายตามรายการบริการ (Free Schedule) และไม่จำกัดจำนวนครั้งที่เบิก</li>
+            </ul>
+        </section>
+
+    </main>
+
+    <div id="checkerModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden no-print">
+        <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-slate-100 space-y-5 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div class="flex items-center gap-2">
+                    <div class="p-2 bg-indigo-100 text-indigo-600 rounded-lg">
+                        <i class="fa-solid fa-calculator text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-800">เครื่องมือช่วยประเมินสิทธิเบิกจ่ายเบื้องต้น</h3>
+                        <p class="text-xs text-slate-500">ประเมินสิทธิการเบิก CPAP และ Sleep Test ตามเกณฑ์ล่าสุด</p>
+                    </div>
+                </div>
+                <button onclick="closeCheckerModal()" class="text-slate-400 hover:text-slate-600 p-1 text-xl font-bold">&times;</button>
+            </div>
+
+            <form id="checkerForm" onsubmit="calculateEligibility(event)" class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">1. สิทธิการรักษาของผู้ป่วย</label>
+                        <select id="calc_scheme" class="w-full text-sm border border-slate-300 rounded-lg p-2.5 bg-slate-50 focus:ring-2 focus:ring-indigo-500">
+                            <option value="sss">ประกันสังคม (SSS)</option>
+                            <option value="nhso">สปสช. / บัตรทอง (NHSO)</option>
+                            <option value="cscd">กรมบัญชีกลาง / ข้าราชการ (CSCD)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">2. อายุของผู้ป่วย (ปี)</label>
+                        <input type="number" id="calc_age" placeholder="ระบุอายุ เช่น 52" required class="w-full text-sm border border-slate-300 rounded-lg p-2.5 bg-slate-50 focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">3. ค่าดัชนี AHI (ครั้ง/ชั่วโมง)</label>
+                        <input type="number" step="0.1" id="calc_ahi" placeholder="ระบุค่า AHI เช่น 32.5" required class="w-full text-sm border border-slate-300 rounded-lg p-2.5 bg-slate-50 focus:ring-2 focus:ring-indigo-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">4. มีโรคหัวใจ/หลอดเลือด/Refractory HT ร่วมด้วยหรือไม่?</label>
+                        <select id="calc_cvd" class="w-full text-sm border border-slate-300 rounded-lg p-2.5 bg-slate-50 focus:ring-2 focus:ring-indigo-500">
+                            <option value="no">ไม่มี</option>
+                            <option value="yes">มี (เช่น Stroke, MI, Heart Failure หรือ Refractory HT*)</option>
+                        </select>
+                        <p class="text-[10px] text-slate-500 mt-0.5">*Refractory HT: SBP/DBP ≥ 140/90 แม้ได้รับยาลดความดัน ≥ 3 กลุ่ม</p>
+                    </div>
+                </div>
+
+                <div class="border-t border-slate-100 pt-3">
+                    <label class="block text-xs font-bold text-slate-700 mb-1">5. การทดลองใช้เครื่อง CPAP (Titration/Trial)</label>
+                    <select id="calc_trial" class="w-full text-sm border border-slate-300 rounded-lg p-2.5 bg-slate-50 focus:ring-2 focus:ring-indigo-500">
+                        <option value="yes">ผ่านการทดลองใช้ CPAP เฉลี่ย ≥ 4 ชม./คืน (อย่างน้อย 1-2 สัปดาห์)</option>
+                        <option value="no">ยังไม่ได้ทดลองใช้ / ใช้ไม่ถึง 4 ชม./คืน</option>
+                    </select>
+                    <p class="text-[11px] text-amber-700 mt-1 font-medium"><i class="fa-solid fa-triangle-exclamation"></i> หมายเหตุ: กรมบัญชีกลางไม่จำเป็นต้องผ่านการทดลองใช้เครื่องในการประเมินสิทธิ</p>
+                </div>
+
+                <div class="flex justify-end gap-2 border-t border-slate-100 pt-4">
+                    <button type="button" onclick="closeCheckerModal()" class="px-4 py-2 border border-slate-300 rounded-lg text-sm text-slate-600 hover:bg-slate-100">ยกเลิก</button>
+                    <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg text-sm shadow-md transition">ประเมินผลสิทธิ</button>
+                </div>
+            </form>
+
+            <div id="calcResult" class="hidden rounded-xl p-4 border space-y-2"></div>
+        </div>
+    </div>
+
+    <footer class="bg-slate-900 text-slate-400 text-xs py-6 mt-10 border-t border-slate-800 no-print">
+        <div class="max-w-7xl mx-auto px-4 text-center space-y-2">
+            <p>ระบบสรุปและเปรียบเทียบเกณฑ์การเบิกจ่าย Sleep Test และ CPAP - จัดทำขึ้นเพื่อการอ้างอิงและอำนวยความสะดวกแก่บุคลากรทางการแพทย์</p>
+            <p class="text-slate-500">ข้อมูลอ้างอิงตามประกาศเกณฑ์การเบิกจ่ายของ ประกันสังคม (SSS), สปสช. (NHSO) และ กรมบัญชีกลาง (CSCD)</p>
+        </div>
+    </footer>
+
+    <script>
+        // Database of Guidelines Data
+        const dbData = [
+            {
+                id: "1",
+                category: "psg",
+                title: "1. ชนิดของการตรวจการนอนหลับและเกณฑ์การเบิก",
+                sss: {
+                    badge: "เบิกได้ 6,000 - 7,000 บาท",
+                    text: "• <b>ชนิดที่ 1 (Full PSG):</b> อัตราไม่เกิน 7,000 บาท (มีเจ้าหน้าที่เฝ้าติดตามทั้งคืน)<br>• <b>ชนิดที่ 2:</b> อัตราไม่เกิน 6,000 บาท (ตรวจเหมือนชนิดที่ 1 แต่ไม่มีเจ้าหน้าที่เฝ้า)<br><span class='font-semibold text-amber-800'>• เกณฑ์ความถี่:</span> เบิกจ่ายไม่เกิน 1 ครั้ง / 3 ปี<br><span class='text-xs text-slate-600'>(หากแพทย์เวชศาสตร์การนอนหลับประเมินว่ามีภาวะเสี่ยง/จำเป็น สมควรตรวจก่อน 3 ปี ให้พิจารณาเป็นรายกรณีโดยผ่านความเห็นชอบคณะกรรมการการแพทย์ หรือส่งอุทธรณ์ได้)</span>"
+                },
+                nhso: {
+                    badge: "เบิกได้ 6,000 - 7,000 บาท",
+                    text: "1. <b>Type 1 (Full-night PSG):</b> อัตรา 7,000 บาท<br>2. <b>Type 2 (Full-night PSG):</b> อัตรา 6,000 บาท<br>3. <b>Split-night PSG:</b> อัตรา 7,000 บาท<br>4. <b>PAP Titration:</b> อัตรา 7,000 บาท<br><span class='font-semibold text-emerald-800'>• เกณฑ์ความถี่:</span> วิธีที่ 1, 2 หรือ 3 เบิกได้ไม่เกิน <b>1 ครั้ง / 3 ปี</b> (วิธีที่ 4 เบิกได้ไม่เกิน <b>1 ครั้ง / 1 ปี</b>)"
+                },
+                cscd: {
+                    badge: "เบิกได้ 7,000 บาท",
+                    text: "• <b>Polysomnography:</b> อัตรา 7,000 บาท ต่อครั้งต่อคืน (สำหรับการตรวจในสถานพยาบาล)<br><span class='font-bold text-indigo-700'>• เกณฑ์ความถี่:</span> <span class='bg-indigo-100 text-indigo-800 px-1.5 py-0.5 rounded font-bold'>ไม่จำกัดจำนวนครั้งที่เบิก</span>"
+                }
+            },
+            {
+                id: "2",
+                category: "psg",
+                title: "2. ศักยภาพของหน่วยที่ให้บริการ",
+                sss: {
+                    badge: "คู่สัญญาสำนักงาน",
+                    text: "สถานพยาบาลที่สำนักงานกำหนดสิทธิในการรับบริการทางการแพทย์"
+                },
+                nhso: {
+                    badge: "ต้องผ่าน Certificate",
+                    text: "1. เป็นหน่วยบริการในระบบหลักประกันสุขภาพแห่งชาติ<br>2. ผ่านการประเมินเป็นศูนย์ตรวจการนอนหลับ และได้รับใบรับรอง (Certificate of Accreditation) จากสมาคมโรคจากการหลับแห่งประเทศไทย ร่วมกับราชวิทยาลัยที่เกี่ยวข้อง หรือตามที่ สปสช.กำหนด<br>3. มีเครื่องตรวจวินิจฉัยโรคหยุดหายใจขณะหลับ (OSA)<br>4. มีแพทย์ผู้เชี่ยวชาญและบุคลากรที่มีศักยภาพตามมาตรฐาน"
+                },
+                cscd: {
+                    badge: "ตามมาตรฐานสถานพยาบาล",
+                    text: "ยังไม่ระบุในประกาศเฉพาะ (อิงตามสถานพยาบาลของรัฐหรือคู่สัญญาตามเกณฑ์กรมบัญชีกลาง)"
+                }
+            },
+            {
+                id: "3",
+                category: "psg",
+                title: "3. เกณฑ์ที่สามารถตรวจการนอนหลับได้",
+                sss: {
+                    badge: "Stop-Bang ≥ 5",
+                    text: "มีบันทึกของแพทย์ผู้ส่งตรวจในเวชระเบียน ดังนี้:<br>1. การซักประวัติ<br>2. การตรวจร่างกาย<br>3. คะแนนความเสี่ยง OSA: <b class='text-amber-800 bg-amber-100 px-1 rounded'>Stop-Bang ≥ 5</b><br>4. กรณีนอกเหนือหลักเกณฑ์ ให้แพทย์ผู้เชี่ยวชาญด้านเวชศาสตร์การนอนหลับพิจารณาความจำเป็น"
+                },
+                nhso: {
+                    badge: "อายุ ≥ 50 ปี + ความเสี่ยง",
+                    text: "<b>กลุ่มเป้าหมายและข้อบ่งชี้:</b><br>1. <b>อายุตั้งแต่ 50 ปีขึ้นไป</b><br>2. มีปัญหาการนอนหลับ เช่น กรนดังผิดปกติ, ง่วงนอนกลางวันมากผิดปกติทั้งที่นอนเพียงพอ, หายใจลำบาก/สงสัยหยุดหายใจ, ไม่สดชื่น, ปวดศีรษะหลังตื่น, อารมณ์ฉุนเฉียว, สมาธิความจำลดลง<br>3. คะแนนความเสี่ยง: <b class='text-emerald-800 bg-emerald-100 px-1 rounded'>Stop-Bang ≥ 3</b> หรือ <b class='text-emerald-800 bg-emerald-100 px-1 rounded'>Berlin Score ≥ 2</b><br>4. กรณีนอกเหนือจากนี้ ให้แพทย์ผู้เชี่ยวชาญเห็นชอบ<br><span class='text-xs text-emerald-700 italic'>*หมายเหตุ: กรณีอายุน้อยกว่า 50 ปี จ่ายตาม Free schedule ไม่จำกัดครั้ง</span>"
+                },
+                cscd: {
+                    badge: "ดุลพินิจแพทย์",
+                    text: "<span class='font-semibold text-indigo-800 bg-indigo-50 px-2 py-1 rounded border border-indigo-200'>ตามดุลพินิจของแพทย์ผู้รักษา</span>"
+                }
+            },
+            {
+                id: "4",
+                category: "psg",
+                title: "4. แพทย์ที่สามารถส่งตรวจการนอนหลับได้",
+                sss: {
+                    badge: "แพทย์เฉพาะทางกำหนด",
+                    text: "<b>1. กรณีมีแพทย์ผู้เชี่ยวชาญเวชศาสตร์การนอนหลับ:</b><br>• อายุรแพทย์ / กุมารแพทย์ / โสต ศอ นาสิกแพทย์ / จิตแพทย์ (ด้านการนอนหลับ)<br><b>2. กรณีไม่มีแพทย์ผู้เชี่ยวชาญการนอนหลับ:</b><br>• อายุรแพทย์โรคระบบหายใจ / ประสาทวิทยา<br>• กุมารแพทย์โรคระบบหายใจ / ประสาทวิทยา<br>• โสต ศอ นาสิกแพทย์"
+                },
+                nhso: {
+                    badge: "4 สาขาแพทย์",
+                    text: "1. อายุรแพทย์<br>2. อายุรแพทย์ด้านประสาทวิทยา<br>3. โสต ศอ นาสิกแพทย์<br>4. จิตแพทย์"
+                },
+                cscd: {
+                    badge: "ตามดุลพินิจแพทย์",
+                    text: "ยังไม่ระบุข้อจำกัดสาขาเฉพาะ (ขึ้นกับดุลพินิจของแพทย์ผู้สั่งรักษาในสถานพยาบาล)"
+                }
+            },
+            {
+                id: "5",
+                category: "psg",
+                title: "5. แพทย์ที่สามารถออกผลตรวจการนอนหลับได้ (เพื่อประกอบการเบิก CPAP)",
+                sss: {
+                    badge: "ต้องมี Certificate / วุฒิบัตร",
+                    text: "ลงนามโดยแพทย์ข้อใดข้อหนึ่ง:<br>1. ได้รับวุฒิบัตร/หนังสืออนุมัติการนอนหลับ จากราชวิทยาลัยอายุรแพทย์/กุมารแพทย์/โสต ศอ นาสิก/จิตแพทย์<br>2. ผ่านการสอบประกาศนียบัตรแพทย์ผู้เชี่ยวชาญโรคจากสมาคมโรคจากการหลับแห่งประเทศไทย<br>3. ผ่านหลักสูตรอบรมเวชศาสตร์การนอนหลับอย่างน้อย 1 ปี จากสถาบัน/ราชวิทยาลัยในไทย"
+                },
+                nhso: {
+                    badge: "ต้องมี Certificate / วุฒิบัตร",
+                    text: "ลงนามโดยแพทย์ข้อใดข้อหนึ่ง:<br>1. ได้รับวุฒิบัตร/หนังสืออนุมัติการนอนหลับ จากราชวิทยาลัยอายุรแพทย์/กุมารแพทย์/โสต ศอ นาสิก/จิตแพทย์<br>2. ผ่านหลักสูตรอบรมเวชศาสตร์การนอนหลับอย่างน้อย 1 ปี จากสถาบัน/สมาคม/ราชวิทยาลัยในไทย"
+                },
+                cscd: {
+                    badge: "ต้องมี Certificate / วุฒิบัตร",
+                    text: "ลงนามโดยแพทย์ข้อใดข้อหนึ่ง:<br>1. ได้รับวุฒิบัตร/หนังสืออนุมัติการนอนหลับ จากราชวิทยาลัยอายุรแพทย์/กุมารแพทย์/โสต ศอ นาสิก/จิตแพทย์<br>2. ผ่านการสอบประกาศนียบัตรสมาคมโรคจากการหลับแห่งประเทศไทย<br>3. ผ่านหลักสูตรอบรมเวชศาสตร์การนอนหลับอย่างน้อย 1 ปี จากสถาบัน/สมาคม/ราชวิทยาลัยในไทย"
+                }
+            },
+            {
+                id: "6",
+                category: "cpap",
+                title: "6. เกณฑ์ที่สามารถเบิกจ่ายเครื่องอัดอากาศแรงดันบวก (CPAP) เครื่องแรก",
+                sss: {
+                    badge: "เบิกได้ 20,000 บาท",
+                    text: "<span class='font-bold text-amber-800'>วงเงินเบิกจ่าย: 20,000 บาท</span><br>รักษาอนุรักษ์/ผ่าตัดไม่ได้ผล + ผล Full Sleep Test (Type 1/2/Split):<br>1. <b>AHI ≥ 30 ครั้ง/ชั่วโมง</b> หรือ<br>2. <b>มีระดับความรุนแรงของโรคหยุดหายใจขณะหลับจากการอุดกั้นระดับปานกลาง(ดัชนีการหยุดหายใจและหายใจแผ่ว (Apnea-Hypopnea Index, AHI)) = 15-29 ครั้ง/ชั่วโมง) และเป็นโรคเกี่ยวกับหัวใจและหลอดเลือด (Cardiovascular Disease) เช่น โรคสมองขาดเลือด (Stroke) กล้ามเนื้อหัวใจขาดเลือด(Myocardial infarction) ภาวะหัวใจล้มเหลว หรือ Refractory HT (ผู้ป่วยที่มี SBP/DBP มากกว่าหรือเท่ากับ140/90 มิลิเมตรปรอท ในขณะที่ได้รับยาลดความดันมากกว่า หรือเท่ากับ 3 กลุ่ม)</b><br><span class='text-xs bg-amber-100 text-amber-900 p-1 rounded mt-1 inline-block'>+ เอกสารผ่านการทดลองใช้ CPAP เฉลี่ย ≥ 4 ชม./คืน (1-2 สัปดาห์)</span>"
+                },
+                nhso: {
+                    badge: "เบิกได้ 20,000 บาท",
+                    text: "<span class='font-bold text-emerald-800'>วงเงินเบิกจ่าย: 20,000 บาท</span><br><b>อายุ 50 ปีขึ้นไป</b> และมีระดับความรุนแรงอย่างใดอย่างหนึ่ง:<br>1. <b>มีระดับความรุนแรงของโรคหยุดหายใจขณะหลับจากการอุดกั้นระดับมาก (ดัชนีการหยุดหายใจและหายใจแผ่ว (Apnea-Hypopnea Index, AHI)) ≥30 ครั้ง/ชั่วโมง</b><br>2. <b>มีระดับความรุนแรงของโรคหยุดหายใจขณะหลับจากการอุดกั้นระดับปานกลาง(ดัชนีการหยุดหายใจและหายใจแผ่ว (Apnea-Hypopnea Index, AHI)) = 15-29 ครั้ง/ชั่วโมง) และเป็นโรคเกี่ยวกับหัวใจและหลอดเลือด (Cardiovascular Disease) เช่น โรคสมองขาดเลือด (Stroke) กล้ามเนื้อหัวใจขาดเลือด(Myocardial infarction) ภาวะหัวใจล้มเหลว หรือ Refractory HT (ผู้ป่วยที่มี SBP/DBP มากกว่าหรือเท่ากับ140/90 มิลิเมตรปรอท ในขณะที่ได้รับยาลดความดันมากกว่า หรือเท่ากับ 3 กลุ่ม)</b><br><span class='text-xs bg-emerald-100 text-emerald-900 p-1 rounded mt-1 inline-block'>+ เอกสารผ่านการทดลองใช้ CPAP เฉลี่ย ≥ 4 ชม./คืน (1-2 สัปดาห์)</span>"
+                },
+                cscd: {
+                    badge: "เบิกได้ 20,000 บาท",
+                    text: "<span class='font-bold text-indigo-800'>วงเงินเบิกจ่าย: 20,000 บาท</span><br>รักษาอนุรักษ์/ผ่าตัดไม่ได้ผล + ผล Polysomnography (Type 1 หรือ 2):<br><b>• ผู้ป่วยอายุ > 18 ปี:</b><br>&nbsp;&nbsp;1. AHI > 15 ครั้ง/ชั่วโมง หรือ<br>&nbsp;&nbsp;2. AHI 5-15 ครั้ง/ชั่วโมง + ร่วมกับ (โรคหลอดเลือดหัวใจ / ความดันโลหิตสูง / โรคหลอดเลือดสมอง)<br><b>• ผู้ป่วยอายุ < 18 ปี:</b><br>&nbsp;&nbsp;1. AHI > 5 ครั้ง/ชั่วโมง หรือ<br>&nbsp;&nbsp;2. AHI 1.5-5 ครั้ง/ชั่วโมง + ร่วมกับอาการง่วงมาก หรือแทรกซ้อน (สมาธิสั้น/ปัญหาเรียน/ความดันสูง/หัวใจโต Cor Pulmonale/หัวใจล้มเหลว)<br><span class='text-xs bg-indigo-100 text-indigo-900 p-1 rounded mt-1 inline-block font-semibold'>* ไม่จำเป็นต้องผ่านการทดลองใช้ CPAP ในการประเมินสิทธิ</span>"
+                }
+            },
+            {
+                id: "7",
+                category: "cpap",
+                title: "7. เกณฑ์ในการเบิกเครื่อง CPAP ครั้งที่ 2 (เปลี่ยนเครื่อง)",
+                sss: {
+                    badge: "ทุก 5 ปี + ผลการใช้ 4 สัปดาห์",
+                    text: "<span class='font-bold text-amber-800'>วงเงิน 20,000 บาท</span> (ครบทุกข้อ):<br>1. กรณีเครื่องเสียซ่อมไม่ได้ โดยแนบใบยืนยันจากบริษัท <b class='text-amber-900 bg-amber-100 px-1 rounded'>เปลี่ยนได้ทุก 5 ปี</b><br>2. แนบเอกสารรายงานผลว่าผ่านการทดลองใช้ CPAP เฉลี่ยอย่างน้อย 4 ชั่วโมง/คืน ระยะเวลาอย่างน้อย <b>4 สัปดาห์</b>"
+                },
+                nhso: {
+                    badge: "ทุก 5 ปี + ผลการใช้ 4 สัปดาห์",
+                    text: "<span class='font-bold text-emerald-800'>วงเงิน 20,000 บาท</span>:<br>• เบิกได้ 1 เครื่อง ในระยะเวลา <b class='text-emerald-900 bg-emerald-100 px-1 rounded'>5 ปี</b><br>• ต้องมีหลักฐาน/หนังสือรับรองกรณีเครื่องเสียซ่อมไม่ได้<br>• มีรายงานผลการใช้ CPAP เฉลี่ยอย่างน้อย 4 ชั่วโมง/คืน ระยะเวลาอย่างน้อย <b>4 สัปดาห์</b> ก่อนส่งมอบ"
+                },
+                cscd: {
+                    badge: "ทุก 5 ปี + Compliance 70%",
+                    text: "<span class='font-bold text-indigo-800'>วงเงิน 20,000 บาท</span> (ครบทุกข้อ):<br>1. เครื่องเสียซ่อมไม่ได้ แนบใบยืนยันบริษัท <b class='text-indigo-900 bg-indigo-100 px-1 rounded'>เปลี่ยนได้ทุก 5 ปี</b><br>2. แนบเอกสารยืนยันใช้เครื่องเฉลี่ย ≥ 4 ชม./วัน อย่างน้อย <b>70% ในระยะเวลาอย่างน้อย 3 เดือน</b>"
+                }
+            },
+            {
+                id: "8",
+                category: "cpap",
+                title: "8. แพทย์ที่สามารถสั่งเครื่อง CPAP ได้",
+                sss: {
+                    badge: "9 สาขาเฉพาะทาง",
+                    text: "1. อายุรแพทย์การนอนหลับ<br>2. อายุรแพทย์โรคระบบหายใจและภาวะวิกฤต<br>3. อายุรแพทย์ประสาทวิทยา<br>4. กุมารแพทย์การนอนหลับ<br>5. กุมารแพทย์โรคระบบหายใจและภาวะวิกฤต<br>6. กุมารแพทย์ประสาทวิทยา<br>7. โสต ศอ นาสิกการนอนหลับ<br>8. โสต ศอ นาสิกแพทย์<br>9. จิตแพทย์การนอนหลับ"
+                },
+                nhso: {
+                    badge: "4 สาขาเฉพาะทาง",
+                    text: "1. อายุรแพทย์<br>2. อายุรแพทย์ด้านประสาทวิทยา<br>3. โสต ศอ นาสิกแพทย์<br>4. จิตแพทย์เชี่ยวชาญด้านการนอนหลับ"
+                },
+                cscd: {
+                    badge: "9 สาขาเฉพาะทาง",
+                    text: "1. อายุรแพทย์การนอนหลับ<br>2. อายุรแพทย์โรคระบบหายใจและภาวะวิกฤต<br>3. อายุรแพทย์ประสาทวิทยา<br>4. กุมารแพทย์การนอนหลับ<br>5. กุมารแพทย์โรคระบบหายใจและภาวะวิกฤต<br>6. กุมารแพทย์ประสาทวิทยา<br>7. โสต ศอ นาสิกการนอนหลับ<br>8. โสต ศอ นาสิกแพทย์<br>9. จิตแพทย์การนอนหลับ"
+                }
+            },
+            {
+                id: "9",
+                category: "cpap",
+                title: "9. แพทย์ที่สามารถสั่งหน้ากาก CPAP ได้",
+                sss: {
+                    badge: "9 สาขาเฉพาะทาง",
+                    text: "เหมือนข้อ 8 (อายุรแพทย์ปอด/ประสาท/นอนหลับ, กุมารแพทย์ปอด/ประสาท/นอนหลับ, โสต ศอ นาสิกแพทย์/นอนหลับ, จิตแพทย์นอนหลับ)"
+                },
+                nhso: {
+                    badge: "4 สาขาเฉพาะทาง",
+                    text: "เหมือนข้อ 8 (อายุรแพทย์, อายุรแพทย์ประสาทวิทยา, โสต ศอ นาสิกแพทย์, จิตแพทย์เชี่ยวชาญการนอนหลับ)"
+                },
+                cscd: {
+                    badge: "9 สาขาเฉพาะทาง",
+                    text: "เหมือนข้อ 8 (อายุรแพทย์ปอด/ประสาท/นอนหลับ, กุมารแพทย์ปอด/ประสาท/นอนหลับ, โสต ศอ นาสิกแพทย์/นอนหลับ, จิตแพทย์นอนหลับ)"
+                }
+            },
+            {
+                id: "10",
+                category: "cpap",
+                title: "10. เกณฑ์ที่สั่งหน้ากากและอุปกรณ์เสริมได้",
+                sss: {
+                    badge: "เบิกได้ 4,000 บาท/ปี",
+                    text: "<span class='font-bold text-amber-800'>วงเงินเบิกจ่าย: 4,000 บาท</span> (ครั้งที่ 2 เป็นต้นไป ครบทุกข้อ):<br>1. ทดแทนของเดิมชำรุด/ใช้ไม่ได้ ได้ไม่เกิน <b>1 ชิ้น / ปี</b><br>2. แนบเอกสารยืนยันการใช้เครื่องเฉลี่ย ≥ 4 ชม./วัน อย่างน้อย 70% ในระยะเวลา 3 เดือน"
+                },
+                nhso: {
+                    badge: "หน้ากาก 3,000B / ท่อ 1,500B",
+                    text: "1. <b>หน้ากาก:</b> เบิกได้ 1 ชิ้น/ปี <b class='text-emerald-800 bg-emerald-100 px-1 rounded'>วงเงิน 3,000 บาท</b> (ต้องนำของเดิมมาแสดงชำรุด)<br>* ติดตามผลทุก 1 ปี หากใช้น้อยกว่า 4 ชม./คืน อาจไม่ให้เบิกหน้ากากใหม่และให้คืนเครื่อง<br>2. <b>ท่ออากาศ:</b> เบิกได้ 1 ชิ้น ใน 5 ปี <b class='text-emerald-800 bg-emerald-100 px-1 rounded'>วงเงิน 1,500 บาท</b> (ต้องนำท่อเดิมมาแสดงชำรุด)"
+                },
+                cscd: {
+                    badge: "เบิกได้ 4,000 บาท/ปี",
+                    text: "<span class='font-bold text-indigo-800'>วงเงินเบิกจ่าย: 4,000 บาท</span> (ครั้งที่ 2 เป็นต้นไป ครบทุกข้อ):<br>1. ทดแทนของเดิมชำรุด/ใช้ไม่ได้ ได้ไม่เกิน <b>1 ชิ้น / ปี</b><br>2. แนบเอกสารยืนยันการใช้เครื่องเฉลี่ย ≥ 4 ชม./วัน อย่างน้อย 70% ในระยะเวลา 3 เดือน"
+                }
+            }
+        ];
+
+        let currentTab = 'all';
+
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active', 'border-b-2', 'border-indigo-600', 'text-indigo-600', 'font-bold'));
+            
+            const activeBtn = document.getElementById(`tab-${tab}`);
+            if(activeBtn) {
+                activeBtn.classList.add('active', 'border-b-2', 'border-indigo-600', 'text-indigo-600', 'font-bold');
+            }
+            renderContent();
+        }
+
+        function applyFilters() {
+            renderContent();
+        }
+
+        function renderContent() {
+            const container = document.getElementById('contentContainer');
+            const catFilter = document.getElementById('categoryFilter').value;
+            const searchKeyword = document.getElementById('searchInput').value.toLowerCase().trim();
+
+            let filtered = dbData.filter(item => {
+                const matchCat = (catFilter === 'all') || (item.category === catFilter);
+                const textToSearch = (item.title + item.sss.text + item.nhso.text + item.cscd.text).toLowerCase();
+                const matchSearch = textToSearch.includes(searchKeyword);
+                return matchCat && matchSearch;
+            });
+
+            if(filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-white rounded-xl p-8 text-center text-slate-500 shadow-sm">
+                        <i class="fa-solid fa-folder-open text-4xl mb-2 text-slate-300"></i>
+                        <p class="font-medium">ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+
+            filtered.forEach(item => {
+                if (currentTab === 'all') {
+                    // Comparative Table Layout
+                    html += `
+                        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden card-shadow">
+                            <div class="bg-slate-800 text-white px-4 py-3 font-semibold text-base flex items-center justify-between">
+                                <span>${item.title}</span>
+                                <span class="text-xs bg-slate-700 text-slate-300 px-2 py-0.5 rounded font-normal">ข้อที่ ${item.id}</span>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-200 text-sm">
+                                
+                                <!-- SSS -->
+                                <div class="p-4 bg-amber-50/20 space-y-2">
+                                    <div class="flex items-center justify-between border-b border-amber-200/60 pb-2">
+                                        <span class="font-bold text-amber-900 flex items-center gap-1.5">
+                                            <i class="fa-solid fa-shield-halved text-amber-600"></i> ประกันสังคม
+                                        </span>
+                                        <span class="badge bg-amber-100 text-amber-800 border border-amber-300">${item.sss.badge}</span>
+                                    </div>
+                                    <div class="text-slate-700 leading-relaxed text-xs sm:text-sm">${item.sss.text}</div>
+                                </div>
+
+                                <!-- NHSO -->
+                                <div class="p-4 bg-emerald-50/20 space-y-2">
+                                    <div class="flex items-center justify-between border-b border-emerald-200/60 pb-2">
+                                        <span class="font-bold text-emerald-900 flex items-center gap-1.5">
+                                            <i class="fa-solid fa-house-medical text-emerald-600"></i> สปสช. (บัตรทอง)
+                                        </span>
+                                        <span class="badge bg-emerald-100 text-emerald-800 border border-emerald-300">${item.nhso.badge}</span>
+                                    </div>
+                                    <div class="text-slate-700 leading-relaxed text-xs sm:text-sm">${item.nhso.text}</div>
+                                </div>
+
+                                <!-- CSCD -->
+                                <div class="p-4 bg-indigo-50/20 space-y-2">
+                                    <div class="flex items-center justify-between border-b border-indigo-200/60 pb-2">
+                                        <span class="font-bold text-indigo-900 flex items-center gap-1.5">
+                                            <i class="fa-solid fa-building-columns text-indigo-600"></i> กรมบัญชีกลาง
+                                        </span>
+                                        <span class="badge bg-indigo-100 text-indigo-800 border border-indigo-300">${item.cscd.badge}</span>
+                                    </div>
+                                    <div class="text-slate-700 leading-relaxed text-xs sm:text-sm">${item.cscd.text}</div>
+                                </div>
+
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    // Single Scheme Detailed View
+                    const schemeData = item[currentTab];
+                    let schemeTitle = '';
+                    let badgeColor = '';
+                    let borderTheme = '';
+
+                    if(currentTab === 'sss') {
+                        schemeTitle = 'ประกันสังคม (SSS)';
+                        badgeColor = 'bg-amber-100 text-amber-800 border-amber-300';
+                        borderTheme = 'border-amber-200 bg-amber-50/30';
+                    } else if(currentTab === 'nhso') {
+                        schemeTitle = 'สปสช. / บัตรทอง (NHSO)';
+                        badgeColor = 'bg-emerald-100 text-emerald-800 border-emerald-300';
+                        borderTheme = 'border-emerald-200 bg-emerald-50/30';
+                    } else if(currentTab === 'cscd') {
+                        schemeTitle = 'กรมบัญชีกลาง (CSCD)';
+                        badgeColor = 'bg-indigo-100 text-indigo-800 border-indigo-300';
+                        borderTheme = 'border-indigo-200 bg-indigo-50/30';
+                    }
+
+                    html += `
+                        <div class="bg-white rounded-xl shadow-sm border ${borderTheme} p-5 space-y-3">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 pb-3">
+                                <h3 class="font-bold text-slate-800 text-base">${item.title}</h3>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs font-semibold text-slate-500">${schemeTitle}</span>
+                                    <span class="badge ${badgeColor}">${schemeData.badge}</span>
+                                </div>
+                            </div>
+                            <div class="text-slate-700 leading-relaxed text-sm">${schemeData.text}</div>
+                        </div>
+                    `;
+                }
+            });
+
+            container.innerHTML = html;
+        }
+
+        function openCheckerModal() {
+            document.getElementById('checkerModal').classList.remove('hidden');
+        }
+
+        function closeCheckerModal() {
+            document.getElementById('checkerModal').classList.add('hidden');
+        }
+
+        function calculateEligibility(e) {
+            e.preventDefault();
+            const scheme = document.getElementById('calc_scheme').value;
+            const age = parseFloat(document.getElementById('calc_age').value);
+            const ahi = parseFloat(document.getElementById('calc_ahi').value);
+            const cvd = document.getElementById('calc_cvd').value === 'yes';
+            const trial = document.getElementById('calc_trial').value === 'yes';
+
+            const resultBox = document.getElementById('calcResult');
+            resultBox.classList.remove('hidden', 'bg-emerald-50', 'border-emerald-300', 'bg-amber-50', 'border-amber-300', 'bg-red-50', 'border-red-300');
+
+            let eligible = false;
+            let reason = '';
+            let schemeName = '';
+
+            if (scheme === 'sss') {
+                schemeName = 'ประกันสังคม';
+                // SSS Criteria: AHI >= 30 OR (AHI 15-29 + CVD) AND Trial CPAP >= 4 hrs
+                if (!trial) {
+                    eligible = false;
+                    reason = 'ยังไม่ผ่านเกณฑ์การทดลองใช้ CPAP เฉลี่ย ≥ 4 ชม./คืน (1-2 สัปดาห์)';
+                } else if (ahi >= 30) {
+                    eligible = true;
+                    reason = `เข้าเกณฑ์ AHI ≥ 30 (ค่าของคุณคือ ${ahi}) และผ่านการทดลองใช้เครื่อง`;
+                } else if (ahi >= 15 && ahi < 30 && cvd) {
+                    eligible = true;
+                    reason = `เข้าเกณฑ์ AHI 15-29 (ค่าของคุณคือ ${ahi}) ร่วมกับมีโรคหัวใจ/หลอดเลือด/Refractory HT และผ่านการทดลองใช้เครื่อง`;
+                } else if (ahi >= 15 && ahi < 30 && !cvd) {
+                    eligible = false;
+                    reason = `AHI = ${ahi} (ปานกลาง) แต่ไม่มีโรคเกี่ยวกับหัวใจและหลอดเลือด หรือ Refractory HT ร่วมด้วย`;
+                } else {
+                    eligible = false;
+                    reason = `ค่า AHI = ${ahi} ต่ำกว่าเกณฑ์เบิกจ่ายขั้นต่ำ (ต้องการ AHI ≥ 30 หรือ AHI 15-29 + โรคหัวใจ/หลอดเลือด)`;
+                }
+            } else if (scheme === 'nhso') {
+                schemeName = 'สปสช. (บัตรทอง)';
+                // NHSO Criteria: Age >= 50 AND Trial CPAP AND (AHI >= 30 OR (AHI 15-29 + CVD))
+                if (age < 50) {
+                    eligible = false;
+                    reason = `อายุของคุณคือ ${age} ปี (เกณฑ์เบิกเครื่อง สปสช. กำหนดอายุ 50 ปีขึ้นไป)`;
+                } else if (!trial) {
+                    eligible = false;
+                    reason = 'ยังไม่ผ่านเกณฑ์การทดลองใช้ CPAP เฉลี่ย ≥ 4 ชม./คืน (1-2 สัปดาห์)';
+                } else if (ahi >= 30) {
+                    eligible = true;
+                    reason = `อายุ ≥ 50 ปี + AHI ≥ 30 (ค่าของคุณคือ ${ahi}) + ผ่านการทดลองใช้เครื่อง`;
+                } else if (ahi >= 15 && ahi < 30 && cvd) {
+                    eligible = true;
+                    reason = `อายุ ≥ 50 ปี + AHI 15-29 (ค่าของคุณคือ ${ahi}) ร่วมกับมีโรคหัวใจ/หลอดเลือด/Refractory HT + ผ่านการทดลองใช้เครื่อง`;
+                } else if (ahi >= 15 && ahi < 30 && !cvd) {
+                    eligible = false;
+                    reason = `AHI = ${ahi} (ปานกลาง) แต่ไม่มีโรคหัวใจและหลอดเลือด/Refractory HT ร่วมด้วย`;
+                } else {
+                    eligible = false;
+                    reason = `ค่า AHI = ${ahi} ต่ำกว่าเกณฑ์เบิกจ่าย CPAP สปสช.`;
+                }
+            } else if (scheme === 'cscd') {
+                schemeName = 'กรมบัญชีกลาง';
+                // CSCD Criteria: No trial required!
+                if (age > 18) {
+                    if (ahi > 15) {
+                        eligible = true;
+                        reason = `ผู้ใหญ่ (อายุ > 18 ปี) + AHI > 15 (ค่าของคุณคือ ${ahi}) [ไม่บังคับทดลองใช้เครื่อง]`;
+                    } else if (ahi >= 5 && ahi <= 15 && cvd) {
+                        eligible = true;
+                        reason = `ผู้ใหญ่ (อายุ > 18 ปี) + AHI 5-15 (ค่าของคุณคือ ${ahi}) ร่วมกับมีโรคหัวใจ/ความดัน/หลอดเลือดสมอง [ไม่บังคับทดลองใช้เครื่อง]`;
+                    } else if (ahi >= 5 && ahi <= 15 && !cvd) {
+                        eligible = false;
+                        reason = `AHI = ${ahi} (5-15) แต่ไม่มีโรคหลอดเลือดหัวใจ/ความดันสูง/หลอดเลือดสมอง ร่วมด้วย`;
+                    } else {
+                        eligible = false;
+                        reason = `ค่า AHI = ${ahi} ต่ำกว่าเกณฑ์เบิกจ่ายสำหรับผู้ใหญ่ (ต้องการ AHI > 15 หรือ AHI 5-15 + โรคร่วม)`;
+                    }
+                } else {
+                    // Pediatric (< 18 yrs)
+                    if (ahi > 5) {
+                        eligible = true;
+                        reason = `เด็ก (อายุ < 18 ปี) + AHI > 5 (ค่าของคุณคือ ${ahi})`;
+                    } else if (ahi >= 1.5 && ahi <= 5 && cvd) {
+                        eligible = true;
+                        reason = `เด็ก (อายุ < 18 ปี) + AHI 1.5-5 (ค่าของคุณคือ ${ahi}) ร่วมกับมีภาวะแทรกซ้อน/โรคร่วม`;
+                    } else {
+                        eligible = false;
+                        reason = `ค่า AHI = ${ahi} ต่ำกว่าเกณฑ์เบิกจ่ายสำหรับเด็ก`;
+                    }
+                }
+            }
+
+            if (eligible) {
+                resultBox.classList.add('bg-emerald-50', 'border-emerald-300');
+                resultBox.innerHTML = `
+                    <div class="flex items-start gap-3">
+                        <i class="fa-solid fa-circle-check text-2xl text-emerald-600 mt-0.5"></i>
+                        <div>
+                            <h4 class="font-bold text-emerald-900 text-base">มีสิทธิเบิกจ่าย CPAP เครื่องแรก (วงเงิน 20,000 บาท)</h4>
+                            <p class="text-xs text-emerald-800 mt-1"><b>สิทธิ:</b> ${schemeName}</p>
+                            <p class="text-xs text-emerald-800 mt-0.5"><b>เหตุผล:</b> ${reason}</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                resultBox.classList.add('bg-amber-50', 'border-amber-300');
+                resultBox.innerHTML = `
+                    <div class="flex items-start gap-3">
+                        <i class="fa-solid fa-triangle-exclamation text-2xl text-amber-600 mt-0.5"></i>
+                        <div>
+                            <h4 class="font-bold text-amber-900 text-base">ยังไม่เข้าเกณฑ์เบิกจ่าย CPAP เครื่องแรก</h4>
+                            <p class="text-xs text-amber-800 mt-1"><b>สิทธิ:</b> ${schemeName}</p>
+                            <p class="text-xs text-amber-800 mt-0.5"><b>สาเหตุ:</b> ${reason}</p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // Initialize App
+        window.onload = function() {
+            renderContent();
+        };
+    </script>
+</body>
+</html>
